@@ -12,7 +12,7 @@ body {
     background-color: rgb(9, 9, 9);
     font-family: Arial, sans-serif;
 }
-/*Side bar stlying*/
+/* heading and blue buttons */
 .container {
     display: flex;
     align-items: center;
@@ -47,7 +47,6 @@ h1 {
     font-weight: bold;
 }
 
-
 /*Calculator Styling*/
 .calculator {
     width: 320px;
@@ -70,6 +69,11 @@ h1 {
 }
 
 /* Buttons Grid */
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+}
 
 .buttons2 {
     margin-top: 5px;
