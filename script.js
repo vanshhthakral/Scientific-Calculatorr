@@ -1,94 +1,74 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const display = document.querySelector(".display");
+    let display = document.querySelector(".display");
+    let buttons = document.querySelectorAll(".buttons2 button");
     let currentInput = "";
-    let memory = 0;
+    let operator = "";
+    let firstOperand = null;
 
-    function updateDisplay() {
-        display.textContent = currentInput || "0";
+    function limitDecimals(value) {
+        return parseFloat(value).toFixed(6).replace(/\.?0+$/, ""); // Removes trailing zeros
     }
 
-    document.querySelectorAll("button").forEach(button => {
-        button.addEventListener("click", () => {
-            const value = button.textContent;
-            
-            if (!isNaN(value) || value === ".") {
-                currentInput += value;
-            } else if (value === "AC") {
-                currentInput = "";
-            } else if (value === "+/-") {
-                currentInput = currentInput.startsWith("-") ? currentInput.slice(1) : "-" + currentInput;
-            } else if (value === "%") {
-                currentInput = (parseFloat(currentInput) / 100).toString();
-            } else if (value === "÷") {
-                currentInput += "/";
-            } else if (value === "x") {
-                currentInput += "*";
-            } else if (value === "-") {
-                currentInput += "-";
-            } else if (value === "+") {
-                currentInput += "+";
-            } else if (value === "=") {
-                try {
-                    currentInput = eval(currentInput).toString();
-                } catch (e) {
-                    currentInput = "Error";
-                }
-            } else if (value === "π") {
-                currentInput += Math.PI;
-            } else if (value === "e") {
-                currentInput += Math.E;
-            } else if (value === "x²") {
-                currentInput = Math.pow(parseFloat(currentInput), 2).toString();
-            } else if (value === "x³") {
-                currentInput = Math.pow(parseFloat(currentInput), 3).toString();
-            } else if (value === "²√x") {
-                currentInput = Math.sqrt(parseFloat(currentInput)).toString();
-            } else if (value === "³√x") {
-                currentInput = Math.cbrt(parseFloat(currentInput)).toString();
-            } else if (value === "1/x") {
-                currentInput = (1 / parseFloat(currentInput)).toString();
-            } else if (value === "ln") {
-                currentInput = Math.log(parseFloat(currentInput)).toString();
-            } else if (value === "log₁₀") {
-                currentInput = Math.log10(parseFloat(currentInput)).toString();
-            } else if (value === "sin") {
-                currentInput = Math.sin(parseFloat(currentInput) * Math.PI / 180).toString();
-            } else if (value === "cos") {
-                currentInput = Math.cos(parseFloat(currentInput) * Math.PI / 180).toString();
-            } else if (value === "tan") {
-                currentInput = Math.tan(parseFloat(currentInput) * Math.PI / 180).toString();
-            } else if (value === "sinh") {
-                currentInput = Math.sinh(parseFloat(currentInput)).toString();
-            } else if (value === "cosh") {
-                currentInput = Math.cosh(parseFloat(currentInput)).toString();
-            } else if (value === "tanh") {
-                currentInput = Math.tanh(parseFloat(currentInput)).toString();
-            } else if (value === "xʸ") {
-                currentInput += "**";
-            } else if (value === "eˣ") {
-                currentInput = Math.exp(parseFloat(currentInput)).toString();
-            } else if (value === "10ˣ") {
-                currentInput = Math.pow(10, parseFloat(currentInput)).toString();
-            } else if (value === "Rand") {
-                currentInput = Math.random().toString();
-            } else if (value === "x!") {
-                let num = parseInt(currentInput);
-                let fact = 1;
-                for (let i = 2; i <= num; i++) {
-                    fact *= i;
-                }
-                currentInput = fact.toString();
-            } else if (value === "mc") {
-                memory = 0;
-            } else if (value === "m+") {
-                memory += parseFloat(currentInput);
-            } else if (value === "m-") {
-                memory -= parseFloat(currentInput);
-            } else if (value === "mr") {
-                currentInput = memory.toString();
-            }
+    buttons.forEach(button => {
+        button.addEventListener("click", function () {
+            let value = button.innerText;
 
-            updateDisplay();
+            if (!isNaN(value) || value === ".") {
+                // Append number or decimal point
+                currentInput += value;
+                display.innerText = currentInput;
+            } else if (value === "AC") {
+                // Clear all
+                currentInput = "";
+                firstOperand = null;
+                operator = "";
+                display.innerText = "0";
+            } else if (value === "+/-") {
+                // Toggle sign
+                if (currentInput) {
+                    currentInput = (parseFloat(currentInput) * -1).toString();
+                    display.innerText = currentInput;
+                }
+            } else if (value === "%") {
+                // Percentage
+                if (currentInput) {
+                    currentInput = limitDecimals(parseFloat(currentInput) / 100);
+                    display.innerText = currentInput;
+                }
+            } else if (["+", "-", "x", "÷"].includes(value)) {
+                // Store first operand and operator
+                if (currentInput) {
+                    firstOperand = parseFloat(currentInput);
+                    operator = value;
+                    currentInput = "";
+                }
+            } else if (value === "=") {
+                // Perform calculation
+                if (firstOperand !== null && currentInput) {
+                    let secondOperand = parseFloat(currentInput);
+                    let result;
+
+                    switch (operator) {
+                        case "+":
+                            result = firstOperand + secondOperand;
+                            break;
+                        case "-":
+                            result = firstOperand - secondOperand;
+                            break;
+                        case "x":
+                            result = firstOperand * secondOperand;
+                            break;
+                        case "÷":
+                            result = secondOperand !== 0 ? firstOperand / secondOperand : "Error";
+                            break;
+                    }
+
+                    display.innerText = limitDecimals(result);
+                    currentInput = result.toString();
+                    firstOperand = null;
+                    operator = "";
+                }
+            }
         });
     });
 });
